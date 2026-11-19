@@ -1,0 +1,22 @@
+# /etc/labtools/labtools.conf — cấu hình bộ công cụ (copy từ file .example)
+# Quyền khuyến nghị: root:root 640
+
+# Ngưỡng health-check (%)
+CPU_THRESHOLD=85
+MEM_THRESHOLD=85
+DISK_THRESHOLD=85
+
+# Dịch vụ cần theo dõi
+MONITORED_SERVICES="nginx labapp postgresql"
+# Cổng cần lắng nghe: 80, 443, 5000 (app), 5432 (DB), 2222 (SSH)
+MONITORED_PORTS="80 443 5000 5432 2222"
+
+# Sao lưu
+BACKUP_DIR=/data/backup
+BACKUP_RETENTION_DAYS=7
+REMOTE_BACKUP_HOST=192.168.56.20
+REMOTE_BACKUP_USER=sysadmin
+REMOTE_BACKUP_DIR=/data/backup-recv
+
+# Cảnh báo
+ALERT_EMAIL=ban@example.com

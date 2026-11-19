@@ -1,0 +1,29 @@
+# Bí mật — TUYỆT ĐỐI không commit
+*.key
+*.pem
+*.env
+!*.env.example
+labtools.conf
+!labtools.conf.example
+.msmtprc
+id_rsa*
+id_ed25519*
+
+# File sinh ra khi chạy
+*.log
+*.tar.gz
+*.sql.gz
+*.ova
+*.vdi
+*.vmdk
+
+# Hệ điều hành / editor
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+__pycache__/
+*.pyc
+venv/
+.venv/
