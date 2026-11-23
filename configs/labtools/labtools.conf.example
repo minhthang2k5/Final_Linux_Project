@@ -1,22 +1,35 @@
-# /etc/labtools/labtools.conf — cấu hình bộ công cụ (copy từ file .example)
-# Quyền khuyến nghị: root:root 640
-
-# Ngưỡng health-check (%)
 CPU_THRESHOLD=85
 MEM_THRESHOLD=85
 DISK_THRESHOLD=85
-
-# Dịch vụ cần theo dõi
+CPU_SAMPLE_SECONDS=1
+DISK_PATHS="/ /data"
+REQUIRE_DATA_MOUNT=1
 MONITORED_SERVICES="nginx labapp postgresql"
-# Cổng cần lắng nghe: 80, 443, 5000 (app), 5432 (DB), 2222 (SSH)
 MONITORED_PORTS="80 443 5000 5432 2222"
-
-# Sao lưu
+CHECK_APP=1
+CHECK_WEB=1
+CHECK_DB=1
+APP_HEALTH_URL=http://127.0.0.1:5000/health
+APP_DOMAIN=app.lab.local
+STATUS_DOMAIN=status.lab.local
+WEB_PORT=443
+WEB_IP=127.0.0.1
+HTTP_TIMEOUT=5
+HTTP_ATTEMPTS=5
+LOG_DIR=/var/log/labtools
+LOG_KEEP=7
 BACKUP_DIR=/data/backup
 BACKUP_RETENTION_DAYS=7
 REMOTE_BACKUP_HOST=192.168.56.20
 REMOTE_BACKUP_USER=sysadmin
 REMOTE_BACKUP_DIR=/data/backup-recv
-
-# Cảnh báo
-ALERT_EMAIL=ban@example.com
+REMOTE_BACKUP_PORT=2222
+ALERT_EMAIL=THAY_EMAIL_NHAN_CANH_BAO
+LOCAL_ALERT_USER=sysadmin
+SMTP_CONFIG=/etc/msmtprc
+SMTP_ACCOUNT=default
+MAIL_TIMEOUT=15
+STATUS_DIR=/var/www/status
+# Xác nhận đường dẫn thực tế với N2 trước nghiệm thu.
+NGINX_SITE_CONF=/etc/nginx/sites-available/app.lab.local
+DEPLOY_STATE=/var/lib/labtools/deploy
