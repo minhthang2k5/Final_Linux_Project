@@ -1,0 +1,5 @@
+# Thư viện tải về bằng npm: rất nặng, tải lại được bằng "npm install" nên không commit
+node_modules/
+
+# File bí mật chứa mật khẩu thật: tuyệt đối không commit
+app.env

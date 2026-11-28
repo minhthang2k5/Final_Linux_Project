@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<!--
+  index.html - Giao diện Todo list (Người 3)
+  HTML/CSS/JS thuần, không dùng framework.
+  Express phục vụ file này bằng express.static('public').
+  Trình duyệt gọi API của app bằng fetch(): GET/POST /todos, PUT /todos/<id>.
+-->
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Todo list - labapp</title>
+
+  <style>
+    /* ---------- Giao diện (CSS) ---------- */
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f4f7;
+      margin: 0;
+      padding: 40px 16px;
+    }
+    main {
+      max-width: 520px;
+      margin: 0 auto;
+      background: #ffffff;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    h1 { margin-top: 0; }
+    form { display: flex; gap: 8px; }
+    input {
+      flex: 1;                 /* ô nhập chiếm hết phần còn lại */
+      padding: 8px;
+      font-size: 16px;
+    }
+    button {
+      padding: 8px 14px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    ul { list-style: none; padding: 0; }
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    li.xong span {             /* việc đã xong: gạch ngang, chữ xám */
+      text-decoration: line-through;
+      color: #999999;
+    }
+    #thong-bao { color: #c0392b; min-height: 1em; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Việc cần làm</h1>
+
+    <!-- Ô nhập + nút thêm việc mới -->
+    <form id="form-them">
+      <input id="o-nhap" type="text" placeholder="Nhập việc cần làm..." maxlength="200" required>
+      <button type="submit">Thêm</button>
+    </form>
+
+    <!-- Chỗ hiện thông báo lỗi (nếu có) -->
+    <p id="thong-bao"></p>
+
+    <!-- Danh sách việc: JS sẽ tự điền vào đây -->
+    <ul id="danh-sach"></ul>
+  </main>
+
+  <script>
+    // ---------- Phần xử lý (JavaScript) ----------
+
+    // Hiện thông báo lỗi lên trang (chuỗi rỗng = xóa thông báo)
+    function hienThongBao(noiDung) {
+      document.getElementById('thong-bao').textContent = noiDung;
+    }
+
+    // Gọi GET /todos để lấy danh sách rồi vẽ lên trang
+    async function taiDanhSach() {
+      try {
+        const phanHoi = await fetch('/todos');
+        if (!phanHoi.ok) {
+          throw new Error('Máy chủ trả mã ' + phanHoi.status);
+        }
+        const danhSach = await phanHoi.json();
+        veDanhSach(danhSach);
+      } catch (loi) {
+        hienThongBao('Không tải được danh sách: ' + loi.message);
+      }
+    }
+
+    // Vẽ danh sách todo thành các dòng <li>
+    function veDanhSach(danhSach) {
+      const ul = document.getElementById('danh-sach');
+      ul.innerHTML = '';                       // xóa danh sách cũ trước khi vẽ lại
+
+      if (danhSach.length === 0) {
+        const li = document.createElement('li');
+        li.textContent = 'Chưa có việc nào.';
+        ul.appendChild(li);
+        return;
+      }
+
+      for (const todo of danhSach) {
+        const li = document.createElement('li');
+
+        // Dùng textContent (không dùng innerHTML) để nếu ai nhập chữ có mã HTML/JS
+        // thì trình duyệt chỉ hiện ra như chữ thường, không chạy mã đó (chống XSS).
+        const chu = document.createElement('span');
+        chu.textContent = todo.title;
+        li.appendChild(chu);
+
+        if (todo.done) {
+          li.classList.add('xong');            // việc đã xong -> gạch ngang
+        } else {
+          const nut = document.createElement('button');
+          nut.textContent = 'Xong';
+          nut.addEventListener('click', () => danhDauXong(todo.id));
+          li.appendChild(nut);
+        }
+
+        ul.appendChild(li);
+      }
+    }
+
+    // Gọi POST /todos để thêm việc mới
+    async function themViec(suKien) {
+      suKien.preventDefault();                 // chặn form tự tải lại trang
+      const oNhap = document.getElementById('o-nhap');
+      const title = oNhap.value.trim();
+      if (title === '') return;
+
+      try {
+        const phanHoi = await fetch('/todos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ title: title })   // đổi object JS thành chữ JSON
+        });
+        if (!phanHoi.ok) {
+          throw new Error('Máy chủ trả mã ' + phanHoi.status);
+        }
+        oNhap.value = '';                      // xóa ô nhập
+        hienThongBao('');
+        taiDanhSach();                         // tải lại danh sách mới
+      } catch (loi) {
+        hienThongBao('Không thêm được: ' + loi.message);
+      }
+    }
+
+    // Gọi PUT /todos/<id> để đánh dấu một việc là đã xong
+    async function danhDauXong(id) {
+      try {
+        const phanHoi = await fetch('/todos/' + id, { method: 'PUT' });
+        if (!phanHoi.ok) {
+          throw new Error('Máy chủ trả mã ' + phanHoi.status);
+        }
+        hienThongBao('');
+        taiDanhSach();
+      } catch (loi) {
+        hienThongBao('Không cập nhật được: ' + loi.message);
+      }
+    }
+
+    // Gắn sự kiện: bấm "Thêm" (hoặc Enter) -> gọi themViec
+    document.getElementById('form-them').addEventListener('submit', themViec);
+
+    // Mở trang lên là tải danh sách ngay
+    taiDanhSach();
+  </script>
+</body>
+</html>
