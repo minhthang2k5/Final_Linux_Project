@@ -1,0 +1,42 @@
+# =====================================================================
+# labapp.service - Chạy ứng dụng Todo list (Node.js/Express) bằng systemd
+# Người 3. Cài vào: /etc/systemd/system/labapp.service
+# Lệnh: sudo systemctl daemon-reload && sudo systemctl enable --now labapp
+# =====================================================================
+
+[Unit]
+# Mô tả ngắn, hiện trong "systemctl status"
+Description=labapp - Ung dung Todo list (Node.js + Express + PostgreSQL)
+# Chỉ khởi động SAU KHI mạng và PostgreSQL đã được khởi động
+After=network.target postgresql.service
+# Muốn có PostgreSQL chạy cùng (nhưng DB tắt thì app KHÔNG bị tắt theo;
+# lúc đó /health sẽ trả 503 để báo lỗi)
+Wants=postgresql.service
+
+[Service]
+# Chạy app bằng user hệ thống appsvc, KHÔNG dùng root
+User=appsvc
+Group=appsvc
+# Thư mục làm việc: nơi chứa code, để "server.js" và "public" tìm đúng chỗ
+WorkingDirectory=/opt/app
+# Nạp biến môi trường (DB_HOST, DB_PASSWORD...) từ file bí mật, quyền 640
+EnvironmentFile=/etc/labapp/app.env
+# Lệnh chạy app (systemd cần đường dẫn đầy đủ tới chương trình node)
+ExecStart=/usr/bin/node server.js
+# Tự khởi động lại khi app chết bất thường (lỗi, bị kill),
+# KHÔNG khởi động lại khi admin chủ động "systemctl stop"
+Restart=on-failure
+# Chờ 3 giây rồi mới bật lại, tránh bật/tắt liên tục quá nhanh
+RestartSec=3
+# Đưa stdout/stderr (console.log/console.error) vào journald
+StandardOutput=journal
+StandardError=journal
+# Tên hiển thị trong journalctl
+SyslogIdentifier=labapp
+# Gia cố nhẹ: tiến trình app không được tự xin thêm quyền (vd qua sudo)
+NoNewPrivileges=true
+
+[Install]
+# "enable" sẽ gắn service vào chế độ khởi động bình thường của máy
+# -> reboot xong app tự chạy
+WantedBy=multi-user.target
