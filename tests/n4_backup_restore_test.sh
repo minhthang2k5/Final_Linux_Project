@@ -13,7 +13,7 @@
 set -Eeuo pipefail
 
 usage() { printf 'Cách dùng: sudo %s [-h]\n  Chạy toàn bộ test N4 (xem chú thích đầu file).\n' "${0##*/}"; }
-case ${1:-} in -h|--help) usage; exit 0;; esac
+case ${1:-} in -h|--help) usage; exit 0;; *) ;; esac
 if (( EUID != 0 )); then echo 'Chạy bằng sudo' >&2; exit 2; fi
 trap 'echo "Lỗi hạ tầng test ở dòng $LINENO" >&2' ERR
 

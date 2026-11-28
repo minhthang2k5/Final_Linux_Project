@@ -39,7 +39,7 @@ Ví dụ:
 EOF
 }
 
-case ${1:-} in --help) usage; exit 0;; esac
+case ${1:-} in --help) usage; exit 0;; *) ;; esac
 FILE='' REMOTE=0 SCOPE=all ASSUME_YES=0 LIST=0
 while getopts ':hf:rs:yl' opt; do
     case $opt in
@@ -140,7 +140,7 @@ tar -C "$work/x" --no-same-owner -xzf "$FILE"
 grep -qx 'created_by=backup.sh' "$work/x/manifest.txt" || reject 'manifest.txt không phải của backup.sh'
 (cd "$work/x" && sha256sum --quiet -c SHA256SUMS) || reject 'SHA256SUMS bên trong không khớp'
 tail -n 5 "$work/x/db.sql" | grep -q 'PostgreSQL database dump complete' || reject 'db.sql không trọn vẹn'
-manifest() { sed -n "s/^$1=//p" "$work/x/manifest.txt"; }
+manifest() { local key=$1; sed -n "s/^${key}=//p" "$work/x/manifest.txt"; }
 m_db=$(manifest db_name); m_rows=$(manifest todos_rows); m_created=$(manifest created_at)
 [[ "$m_db" == "$BACKUP_DB_NAME" ]] || reject "Archive là của DB '$m_db', không phải '$BACKUP_DB_NAME'"
 log_info "Archive hợp lệ: $name (tạo lúc $m_created, todos=$m_rows dòng, web: $(manifest web_paths))"
@@ -152,7 +152,7 @@ if (( ! ASSUME_YES )); then
 fi
 
 pg() { runuser -u postgres -- env PGOPTIONS='-c TimeZone=UTC' psql -X -q -v ON_ERROR_STOP=1 "$@"; }
-dump_todos() { awk '/^COPY public\.todos /{f=1; next} f && /^\\\.$/{exit} f' "$1"; }
+dump_todos() { local dump=$1; awk '/^COPY public\.todos /{f=1; next} f && /^\\\.$/{exit} f' "$dump"; }
 
 # ---------------- 3. Khôi phục DB ----------------
 if [[ $SCOPE == all || $SCOPE == db ]]; then

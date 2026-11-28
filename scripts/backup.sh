@@ -30,7 +30,7 @@ Mã thoát: 0 OK, 1 lỗi, 2 sai tham số, 3 rsync lỗi (bản local vẫn t�
 EOF
 }
 
-case ${1:-} in --help) usage; exit 0;; esac
+case ${1:-} in --help) usage; exit 0;; *) ;; esac
 NO_REMOTE=0
 while getopts ':hn' opt; do
     case $opt in

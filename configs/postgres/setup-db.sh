@@ -28,10 +28,10 @@ EOF
 }
 
 log() { printf '%s [setup-db] %s\n' "$(date '+%F %T')" "$*" >&2; }
-on_error() { log "LỖI ở dòng $1 (mã $2)"; exit "$2"; }
+on_error() { local line=$1 code=$2; log "LỖI ở dòng $line (mã $code)"; exit "$code"; }
 trap 'on_error $LINENO $?' ERR
 
-case ${1:-} in --help) usage; exit 0;; esac
+case ${1:-} in --help) usage; exit 0;; *) ;; esac
 while getopts ':hse:' opt; do
     case $opt in
         h) usage; exit 0;;
