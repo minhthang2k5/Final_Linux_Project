@@ -24,6 +24,12 @@ REMOTE_BACKUP_HOST=192.168.56.20
 REMOTE_BACKUP_USER=sysadmin
 REMOTE_BACKUP_DIR=/data/backup-recv
 REMOTE_BACKUP_PORT=2222
+# N4 (backup.sh/restore.sh) — có giá trị mặc định, chỉ cần đặt khi muốn đổi:
+# BACKUP_DB_NAME=appdb
+# BACKUP_WEB_PATHS="/var/www/status /opt/app/public"
+# BACKUP_RESERVE_MB=100            # chừa trống tối thiểu trên /data sau khi backup
+# REMOTE_BACKUP_ENABLED=1
+# REMOTE_BACKUP_KEY=/home/sysadmin/.ssh/id_ed25519   # root dùng key của sysadmin để rsync sang VM2
 ALERT_EMAIL=THAY_EMAIL_NHAN_CANH_BAO
 LOCAL_ALERT_USER=sysadmin
 SMTP_CONFIG=/etc/msmtprc

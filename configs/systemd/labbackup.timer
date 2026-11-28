@@ -1,0 +1,12 @@
+# N4: lịch backup 02:00 hằng ngày. Kiểm tra: systemctl list-timers labbackup.timer
+[Unit]
+Description=Chạy labbackup.service lúc 02:00 mỗi ngày
+
+[Timer]
+OnCalendar=*-*-* 02:00:00
+# Máy tắt lúc 02:00 thì chạy bù ngay khi bật lại.
+Persistent=true
+Unit=labbackup.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,18 @@
+# N4: chạy backup một lần (được labbackup.timer gọi lúc 02:00).
+# Cài: sudo install -m 644 labbackup.service labbackup.timer /etc/systemd/system/
+#      sudo systemctl daemon-reload && sudo systemctl enable --now labbackup.timer
+# Chạy tay: sudo systemctl start labbackup.service ; xem log: journalctl -u labbackup -n 50
+[Unit]
+Description=Lab backup: pg_dump appdb + web -> /data/backup, rsync sang backup01
+Wants=network-online.target
+After=network-online.target postgresql.service
+RequiresMountsFor=/data
+
+[Service]
+Type=oneshot
+ExecStart=/opt/labtools/backup.sh
+# Không cho 2 lần chạy chồng nhau quá lâu; backup lab chỉ mất vài giây.
+TimeoutStartSec=30min
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
